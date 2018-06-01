@@ -6,14 +6,7 @@
 # Assignment Name: Programming Assignment 2 – k-Means Clustering
 
 def average(l):
-    """Accepts a numeric list and returns the average of the values in that list.
-       The data structure used to store the groups is a list where each element
-       of the list is a list of two values. The first inner-list value is the 
-       mean of the second inner-list value which is a list of the group members.
-
-       example:
-          [[4, [2, 4, 6]], [6, [3, 6, 9]], [10, [12, 8, 10, 12, 8]]...]
-       """
+    """Accepts a numeric list and returns the average of the values in that list."""
     return sum(l)/float(len(l))
      
 def distance(p, q):
@@ -23,7 +16,19 @@ def distance(p, q):
     
 def initialize(values, k):
     """Accepts a numeric list and the number of groups to be created.
-       Initializes the module based on the supplied values."""
+       Initializes the module based on the supplied values. The data structure 
+       used to store the groups is a list where each element of the list is a 
+       list of two values. The first inner-list value is the mean of the second 
+       inner-list value which is a list of the group members. Generally, the
+       pattern is: groups ::= cluster? [,cluster]*
+                   cluster ::= mean, point-list
+                   mean ::= float
+                   point-list ::= list-of-float
+                   
+       example:
+          [[4, [2, 4, 6]], [6, [3, 6, 9]], [10, [12, 8, 10, 12, 8]]...]
+       """
+       
     if k < len(values):
         global groups
         groups = [ [x, [x]] for x in values[0:k] ]

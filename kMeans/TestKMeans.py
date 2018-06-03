@@ -14,7 +14,7 @@ class TestKMeans(unittest.TestCase):
         
     def test_k_means(self):
         initialize(self.test_groups, 3)
-        self.assertEqual(groups(), [[1.1, [1.1, 0.5]], [1.8, [1.8, 2.1]], [4.5, [4.5, 9.8, 7.6, 11.32, 3.2, 6.5]]])
+        self.assertEqual(groups(), [[1.1, [1.1, 0.5], 2], [1.8, [1.8, 2.1], 0], [4.5, [4.5, 9.8, 7.6, 11.32, 3.2, 6.5], 1]])
         self.assertEqual(rebalance(), True)
         converge(self.output_fn)
         print(groups)

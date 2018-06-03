@@ -21,17 +21,18 @@ def initialize(values, k):
        list of two values. The first inner-list value is the mean of the second 
        inner-list value which is a list of the group members. Generally, the
        pattern is: groups ::= cluster? [,cluster]*
-                   cluster ::= mean, point-list
+                   cluster ::= mean, point-list, cluster-id
                    mean ::= float
                    point-list ::= list-of-float
+                   cluster-id ::= integer
                    
        example:
-          [[4, [2, 4, 6]], [6, [3, 6, 9]], [10, [12, 8, 10, 12, 8]]...]
+          [[4, [2, 4, 6], 2], [6, [3, 6, 9], 1], [10, [12, 8, 10, 12, 8], 0]...]
        """
        
     if k < len(values):
         global groups
-        groups = [ [x, [x]] for x in values[0:k] ]
+        groups = [ [x, [x], values.index(x)] for x in values[0:k] ]
         groups.sort()
         
         for value in values[k:len(values)]:
@@ -86,14 +87,18 @@ def groups():
 
 def converge(output_fn=None):
     """Calls 'rebalance()' repeatedly until convergence is reached. Optionally
-       accepts a function that will be pasdsed the current state of 'groups' 
+       accepts a function that will be passed the iteration number 
        on each iteration."""
-    iteration_num = 0
+    iteration_num = 1
+    output_fn(iteration_num)
+    
     while (rebalance()):
         iteration_num += 1
         if output_fn:
             output_fn(iteration_num)
 
+    output_fn(iteration_num + 1)
+    
 def output(iteration_num):
     """
     Prints a single iteration of the required CLI output.
@@ -103,38 +108,25 @@ def output(iteration_num):
     """
     # print as shown in sample output
     print("Iteration %d" % iteration_num)
-    clusters = groups
+    clusters = sorted(groups, key=lambda x : x[2])
     
     for cluster in clusters:
-        print("%d %s" % (cluster[0], cluster[1]))  
-    # [print("%d %s" % (cluster[0], cluster[1])) for cluster in clusters]
+        print("%d %s" % (cluster[2], cluster[1]))  
+
     print("\n")
 
-def write_results(out_file, input_file):
+def write_results(out_file):
     """
     Writes all points and their associated cluster number to file.
     
     params:
         out_file: str, name of output file
-        input_file: str, name of input file
-    """    
-    # create dict to store key=number, value=cluster_num
-    # not sure if ideal, but can be done with one pass through of groups
-    # and then cluster_num can be retrieved in constant time
-    current_cluster = 0
-    cluster_dict = {}
-    for group in groups:
-        for item in group[1]:
-            cluster_dict[item] = current_cluster
-        current_cluster += 1
-    
-    # need to grab numbers as originally ordered
-    with open(input_file) as file:
-        nums = [float(line.strip()) for line in file]
+    """
     
     with open(out_file, 'w+') as file:
-        for number in nums:
-            file.write("Point %s in cluster %d \n" % (number, cluster_dict[number]))
+        for group in groups:
+            for item in group[1]:
+                file.write("Point %s in cluster %d \n" % (item, group[2]))
 
             
 def main():
@@ -153,7 +145,7 @@ def main():
         
     initialize(nums, k)            # creates k groups
     converge(output)               # shuffles until convergence
-    write_results(output_file, input_file)     # creates required out file
+    write_results(output_file)     # creates required out file
     
 
 if __name__ == "__main__":

@@ -18,10 +18,10 @@ test_file = 'iris-testing-data.csv'
 
 # gather necessary data
 train_data = np.loadtxt(train_file, delimiter = ",", usecols = (0, 1, 2, 3))
-train_classes = np.loadtxt(train_file, delimiter = ",", usecols = (4),
+train_classes = np.loadtxt(train_file, delimiter = ",", usecols = (4,),
                            dtype = str)
 test_data = np.loadtxt(test_file, delimiter = ",", usecols = (0, 1, 2, 3))
-test_classes = np.loadtxt(test_file, delimiter = ",", usecols = (4),
+test_classes = np.loadtxt(test_file, delimiter = ",", usecols = (4,),
                           dtype = str)
 predicted_classes = []
 
@@ -45,11 +45,14 @@ for row in test_data:
     predicted_class = np.argmin(distances) 
     predicted_classes.append(train_classes[predicted_class])
 
-accuracy = ((sum(predicted_classes == test_classes) / test_classes.shape[0]) 
+accuracy = ((sum(predicted_classes == test_classes) / float(test_classes.shape[0])) 
                 * 100)
 
 print("#, True, Predicted")
-[print(x, y, z) for x, y, z in zip(range(1, 76), test_classes, predicted_classes)]
+
+for x, y, z in zip(range(1, 76), test_classes, predicted_classes):
+    print(x, y, z)
+    
 print("Accuracy: %f%% " % accuracy)
 
 

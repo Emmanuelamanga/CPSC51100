@@ -54,5 +54,6 @@ df = pd.read_csv("ss13hil.csv")
 household_language_plot(fig, df)
 household_income_plot(fig, df)
 household_vehicle_plot(fig, df)
+household_taxes_plot(fig, df)
 
 plt.show()

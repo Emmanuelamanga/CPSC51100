@@ -62,6 +62,25 @@ def household_vehicle_plot(fig, df):
 def household_taxes_plot(fig, df):
     '''Adds the taxes vs. home size scatter plot as specified in the 
     assignment'''
+    ax = fig.add_subplot(2, 2, 4)
+    plt.xlabel('Taxes ($)')
+    plt.ylabel('Property Value ($)')
+    plt.title(y = 1.0, s='Property Taxes vs. Property Values', fontsize='small')
+    # create the mapping between the TAXP to $ value
+    mapping={1:0,2:1,3:50,63:5500,64:6000,65:7000,66:8000,67:9000,68:10000}
+    for i in range(4,63):
+      if(i<23):
+        mapping[i] = mapping[i-1]+50
+      else:
+        mapping[i] = mapping[i-1]+100
+    #replace the value of TAXP with the mapping value
+    df['TAXP'].replace(mapping,inplace=True)
+    # Create the scatterplot between TAXP and VALP with colormap MRGP and marker size set to WGTP
+    plt.scatter(df['VALP'],df['TAXP'],c=df['MRGP'],s=df['WGTP'],alpha=0.25)
+    # Set the tick marks as shown on the png file
+    plt.colorbar(ticks=[0,1250,2500,3750,5000]).set_label('First Mortgage Payment (Monthly $)')
+    plt.ylim(ymin=0,ymax=11000)
+    plt.xlim(xmin=0,xmax=1200000)
     return
 
 # Create the figure

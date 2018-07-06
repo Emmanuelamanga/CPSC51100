@@ -15,15 +15,26 @@ def create_hincp_stats_table(df):
                  6 : 'Nonfamily household:Female householder:Living alone',
                  7 : 'Nonfamily household:Female householder:Not living alone' }
     
-    hht_lookup = DataFrame(hht_dict.items(), columns=['key','desc'])
-    
-    hht = df.groupby('HHT').aggregate(
-            {'HINCP':['mean','std','count','min','max']})
+    hht_lookup = DataFrame(hht_dict.items())
+    hht_lookup.index.name = 'HHT - Household/family type'
+    hht = df.groupby('HHT').aggregate({'HINCP':
+        ['mean','std','count','min','max']})
     hht.columns = hht.columns.levels[1]
     hht.index = hht.index.astype(int)
-    return hht.merge(hht_lookup, left_index=True, right_on='key')
+    hht = hht.merge(hht_lookup, left_index=True, right_index = True)
+    hht.set_index(1, inplace=True)
+    hht.index.name = None
+    hht.sort_values('mean')
+    return hht
 
 def create_hhl_access_table(df):
+    lang_lookup = ['English only',
+                   'Spanish',
+                   'Other Indo-European languages',
+                   'Asian and Pacific Island languages',
+                   'Other language']
+    wgtp_total = df.WGTP.fillna(0).sum()
+    hhl_access = df.groupby(['HHL','ACCESS']).aggregate({})
     return
 
 def create_hincp_quantile_table(df):
@@ -33,11 +44,13 @@ def main():
     # Read the csv file
     df = pd.read_csv("ss13hil.csv")
     print("*** Table 1 - Descriptive Statistics of HINCP, grouped by HHT ***")
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        print(create_hincp_stats_table(df))
-        
-    #print(create_hhl_access_table(df))
-    #print(create_hincp_quantile_table(df))
+    print(create_hincp_stats_table(df))
+
+    print("*** Table 2 - HHL vs. ACCESS - Frequency Table ***")    
+    print(create_hhl_access_table(df))
+    
+    print("*** Table 3 - Quantile Analysis of HINCP - Household income (past 12 months) ***")
+    print(create_hincp_quantile_table(df))
     return df
 
 if __name__ == "__main__":

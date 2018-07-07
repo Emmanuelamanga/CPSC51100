@@ -4,6 +4,7 @@
 # Assignment Name: Programming Assignment 7 – Aggregating ACS PUMS Data
 
 import pandas as pd
+import numpy as np
 from pandas import DataFrame 
 
 def create_hincp_stats_table(df):
@@ -25,7 +26,7 @@ def create_hincp_stats_table(df):
     hht.set_index(1, inplace=True)
     hht.index.name = None
     hht.sort_values('mean')
-    return hht
+    return hht[['mean','std','count','min','max']]
 
 def create_hhl_access_table(df):
     lang_lookup = ['English only',
@@ -38,17 +39,32 @@ def create_hhl_access_table(df):
     return
 
 def create_hincp_quantile_table(df):
-    return
-
+    desc = df.HINCP.describe(percentiles = [1/3.0, 2/3.0])
+    df['bin'] = pd.cut(df.HINCP,
+                       bins = [-np.Inf, desc['33.3%'], desc['66.7%'], np.Inf],
+                       labels = ['low', 'medium', 'high'])
+    
+    df = df.groupby('bin').aggregate({'HINCP' : ['min', 'max', 'mean'],
+                                      'WGTP' : ['sum']})
+    df.columns = ['min', 'max', 'mean', 'household_count']
+    df.index.name = 'HINCP'
+    df['min'] = df['min'].astype(int)
+    df['max'] = df['max'].astype(int)
+    return df
+    
 def main():
+    pd.set_option('display.max_columns', 500)
+    pd.set_option('display.width', 1000)
     # Read the csv file
     df = pd.read_csv("ss13hil.csv")
     print("*** Table 1 - Descriptive Statistics of HINCP, grouped by HHT ***")
     print(create_hincp_stats_table(df))
-
+    print
+    
     print("*** Table 2 - HHL vs. ACCESS - Frequency Table ***")    
     print(create_hhl_access_table(df))
     
+    print
     print("*** Table 3 - Quantile Analysis of HINCP - Household income (past 12 months) ***")
     print(create_hincp_quantile_table(df))
     return df
